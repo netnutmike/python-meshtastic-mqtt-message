@@ -111,7 +111,14 @@ Configuration file location: {}
     parser.add_argument(
         '--channel',
         type=str,
-        help='Meshtastic channel name (overrides config file)'
+        help='Meshtastic channel name for MQTT topic (overrides config file)'
+    )
+    
+    parser.add_argument(
+        '--channel-number',
+        type=int,
+        dest='channel_number',
+        help='Meshtastic channel number in message payload, 0-7 (overrides config file)'
     )
     
     parser.add_argument(
@@ -259,7 +266,8 @@ def main():
         logger.debug("Building message payload")
         from_id = config.get('meshtastic.from_id')
         to_id = config.get('meshtastic.to_id')
-        payload = build_message_payload(message_text, from_id, to_id)
+        channel_number = config.get('meshtastic.channel_number', 0)
+        payload = build_message_payload(message_text, from_id, to_id, channel_number)
         logger.debug(f"Message payload: {payload}")
         
         # Build MQTT topic

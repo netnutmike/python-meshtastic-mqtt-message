@@ -21,6 +21,7 @@ class MeshtasticConfig:
     from_id: str = ""
     to_id: str = "^all"
     channel: str = "LongFast"
+    channel_number: int = 0
     region: str = "US"
 
 
@@ -75,6 +76,7 @@ class Config:
                 from_id=meshtastic_data.get('from_id', ''),
                 to_id=meshtastic_data.get('to_id', '^all'),
                 channel=meshtastic_data.get('channel', 'LongFast'),
+                channel_number=meshtastic_data.get('channel_number', 0),
                 region=meshtastic_data.get('region', 'US')
             )
             
@@ -107,6 +109,7 @@ class Config:
                 'from_id': '!12345678',
                 'to_id': '^all',
                 'channel': 'LongFast',
+                'channel_number': 0,
                 'region': 'US'
             }
         }
@@ -152,6 +155,8 @@ class Config:
             self.config.meshtastic.to_id = get_arg('to_id')
         if get_arg('channel') is not None:
             self.config.meshtastic.channel = get_arg('channel')
+        if get_arg('channel_number') is not None:
+            self.config.meshtastic.channel_number = get_arg('channel_number')
         if get_arg('region') is not None:
             self.config.meshtastic.region = get_arg('region')
     

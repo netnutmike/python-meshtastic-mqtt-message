@@ -31,7 +31,7 @@ class MeshtasticMessage:
         return json.dumps(payload)
 
 
-def build_message_payload(text: str, from_id: str, to_id: str) -> str:
+def build_message_payload(text: str, from_id: str, to_id: str, channel_number: int = 0) -> str:
     """
     Construct JSON payload following Meshtastic protocol specification.
     
@@ -39,6 +39,7 @@ def build_message_payload(text: str, from_id: str, to_id: str) -> str:
         text: Message text to send
         from_id: Sender node ID (e.g., "!12345678")
         to_id: Recipient node ID (e.g., "^all" for broadcast)
+        channel_number: Channel number/index (0-7, default: 0)
     
     Returns:
         JSON string formatted according to Meshtastic protocol
@@ -49,11 +50,11 @@ def build_message_payload(text: str, from_id: str, to_id: str) -> str:
     from_node = _parse_node_id(from_id)
     to_node = _parse_node_id(to_id)
     
-    # Create message with default values
+    # Create message with specified channel number
     message = MeshtasticMessage(
         from_node=from_node,
         to_node=to_node,
-        channel=0,  # Default channel index
+        channel=channel_number,
         message_type="sendtext",
         text=text
     )

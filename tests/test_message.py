@@ -65,7 +65,18 @@ class TestBuildMessagePayload(unittest.TestCase):
         self.assertEqual(data["from"], 0x12345678)
         self.assertEqual(data["to"], 0x87654321)
         self.assertEqual(data["type"], "sendtext")
+        self.assertEqual(data["channel"], 0)  # Default channel number
         self.assertEqual(data["payload"], "Test message")  # Payload is just the text
+    
+    def test_build_payload_with_custom_channel_number(self):
+        """Test building payload with custom channel number."""
+        payload = build_message_payload("Test message", "!12345678", "^all", channel_number=3)
+        data = json.loads(payload)
+        
+        self.assertEqual(data["from"], 0x12345678)
+        self.assertNotIn("to", data)  # Broadcast
+        self.assertEqual(data["channel"], 3)  # Custom channel number
+        self.assertEqual(data["payload"], "Test message")
     
     def test_build_payload_with_broadcast(self):
         """Test building payload with broadcast address (no 'to' field)."""
