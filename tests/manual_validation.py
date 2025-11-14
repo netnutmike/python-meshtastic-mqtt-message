@@ -61,16 +61,17 @@ def test_message_format():
     print("="*70)
     
     test_cases = [
-        ("!12345678", "^all", "Test broadcast message"),
-        ("!ffffffff", "!87654321", "Test direct message"),
-        ("!abcdef12", "^all", "Test with special chars: @#$%"),
+        ("!12345678", "^all", "Test broadcast message", False),  # Broadcast - no "to"
+        ("!ffffffff", "!87654321", "Test direct message", True),  # Direct - has "to"
+        ("!abcdef12", "^all", "Test with special chars: @#$%", False),  # Broadcast - no "to"
     ]
     
     all_passed = True
     
-    for from_id, to_id, text in test_cases:
+    for from_id, to_id, text, should_have_to in test_cases:
         print(f"\nTest case: from={from_id}, to={to_id}")
         print(f"Message: {text}")
+        print(f"Expected: {'Direct message (with to)' if should_have_to else 'Broadcast (no to)'}")
         
         try:
             payload = build_message_payload(text, from_id, to_id)
@@ -81,16 +82,35 @@ def test_message_format():
             data = json.loads(payload)
             
             # Check required fields
-            required_fields = ["from", "to", "channel", "type", "payload"]
+            required_fields = ["from", "channel", "type", "payload"]
             for field in required_fields:
                 if field not in data:
                     print(f"✗ Missing required field: {field}")
                     all_passed = False
-                    
-            if "text" not in data.get("payload", {}):
-                print("✗ Missing 'text' in payload")
+            
+            # Check "to" field based on message type
+            if should_have_to:
+                if "to" not in data:
+                    print("✗ Direct message should include 'to' field")
+                    all_passed = False
+                else:
+                    print("✓ Direct message includes 'to' field")
+            else:
+                if "to" in data:
+                    print("✗ Broadcast message should not include 'to' field")
+                    all_passed = False
+                else:
+                    print("✓ Broadcast message correctly omits 'to' field")
+            
+            # Check payload is a string (not a nested object)
+            if not isinstance(data.get("payload"), str):
+                print("✗ Payload should be a string, not a nested object")
+                all_passed = False
+            elif data["payload"] != text:
+                print("✗ Payload text doesn't match expected")
                 all_passed = False
             else:
+                print("✓ Payload format correct (string)")
                 print("✓ All required fields present")
                 
         except Exception as e:

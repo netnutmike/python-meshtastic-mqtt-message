@@ -64,6 +64,7 @@ class TestMeshtasticBrokerConnection(unittest.TestCase):
     
     def test_message_format_compliance(self):
         """Test that message payload follows Meshtastic protocol specification."""
+        # Test broadcast message (no "to" field)
         text = "Test message from CLI validation"
         from_id = self.test_from_id
         to_id = "^all"
@@ -79,21 +80,26 @@ class TestMeshtasticBrokerConnection(unittest.TestCase):
         
         # Validate required fields according to Meshtastic protocol
         self.assertIn("from", data, "Message missing 'from' field")
-        self.assertIn("to", data, "Message missing 'to' field")
+        self.assertNotIn("to", data, "Broadcast message should not include 'to' field")
         self.assertIn("channel", data, "Message missing 'channel' field")
         self.assertIn("type", data, "Message missing 'type' field")
         self.assertIn("payload", data, "Message missing 'payload' field")
         
         # Validate field types
         self.assertIsInstance(data["from"], int, "'from' field should be integer")
-        self.assertIsInstance(data["to"], int, "'to' field should be integer")
         self.assertIsInstance(data["channel"], int, "'channel' field should be integer")
         self.assertEqual(data["type"], "sendtext", "'type' field should be 'sendtext'")
         
-        # Validate payload structure
-        self.assertIsInstance(data["payload"], dict, "'payload' should be a dictionary")
-        self.assertIn("text", data["payload"], "Payload missing 'text' field")
-        self.assertEqual(data["payload"]["text"], text, "Text content doesn't match")
+        # Validate payload structure - payload should be just the text string
+        self.assertIsInstance(data["payload"], str, "'payload' should be a string")
+        self.assertEqual(data["payload"], text, "Text content doesn't match")
+        
+        # Test direct message (includes "to" field)
+        direct_payload = build_message_payload("Direct test", from_id, "!87654321")
+        direct_data = json.loads(direct_payload)
+        
+        self.assertIn("to", direct_data, "Direct message should include 'to' field")
+        self.assertIsInstance(direct_data["to"], int, "'to' field should be integer")
     
     def test_topic_format_compliance(self):
         """Test that MQTT topic follows Meshtastic pattern."""

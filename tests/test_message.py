@@ -15,8 +15,8 @@ from src.meshtastic_mqtt_cli.message import (
 class TestMeshtasticMessage(unittest.TestCase):
     """Test MeshtasticMessage dataclass."""
     
-    def test_to_json(self):
-        """Test JSON serialization of MeshtasticMessage."""
+    def test_to_json_broadcast(self):
+        """Test JSON serialization with broadcast (no 'to' field)."""
         message = MeshtasticMessage(
             from_node=305419896,
             to_node=4294967295,
@@ -29,10 +29,29 @@ class TestMeshtasticMessage(unittest.TestCase):
         data = json.loads(json_str)
         
         self.assertEqual(data["from"], 305419896)
-        self.assertEqual(data["to"], 4294967295)
+        self.assertNotIn("to", data)  # Should not include "to" for broadcast
         self.assertEqual(data["channel"], 0)
         self.assertEqual(data["type"], "sendtext")
-        self.assertEqual(data["payload"]["text"], "Hello Meshtastic")
+        self.assertEqual(data["payload"], "Hello Meshtastic")  # Payload is just the text
+    
+    def test_to_json_direct_message(self):
+        """Test JSON serialization with direct message (includes 'to' field)."""
+        message = MeshtasticMessage(
+            from_node=305419896,
+            to_node=2271560481,  # !87654321
+            channel=0,
+            message_type="sendtext",
+            text="Direct message"
+        )
+        
+        json_str = message.to_json()
+        data = json.loads(json_str)
+        
+        self.assertEqual(data["from"], 305419896)
+        self.assertEqual(data["to"], 2271560481)  # Should include "to" for direct message
+        self.assertEqual(data["channel"], 0)
+        self.assertEqual(data["type"], "sendtext")
+        self.assertEqual(data["payload"], "Direct message")  # Payload is just the text
 
 
 class TestBuildMessagePayload(unittest.TestCase):
@@ -46,16 +65,16 @@ class TestBuildMessagePayload(unittest.TestCase):
         self.assertEqual(data["from"], 0x12345678)
         self.assertEqual(data["to"], 0x87654321)
         self.assertEqual(data["type"], "sendtext")
-        self.assertEqual(data["payload"]["text"], "Test message")
+        self.assertEqual(data["payload"], "Test message")  # Payload is just the text
     
     def test_build_payload_with_broadcast(self):
-        """Test building payload with broadcast address."""
+        """Test building payload with broadcast address (no 'to' field)."""
         payload = build_message_payload("Broadcast message", "!12345678", "^all")
         data = json.loads(payload)
         
         self.assertEqual(data["from"], 0x12345678)
-        self.assertEqual(data["to"], 4294967295)
-        self.assertEqual(data["payload"]["text"], "Broadcast message")
+        self.assertNotIn("to", data)  # Should not include "to" for broadcast
+        self.assertEqual(data["payload"], "Broadcast message")  # Payload is just the text
     
     def test_build_payload_with_numeric_ids(self):
         """Test building payload with numeric node IDs."""

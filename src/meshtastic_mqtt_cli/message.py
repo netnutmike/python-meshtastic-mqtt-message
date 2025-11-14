@@ -18,13 +18,16 @@ class MeshtasticMessage:
         """Convert to Meshtastic JSON format."""
         payload = {
             "from": self.from_node,
-            "to": self.to_node,
             "channel": self.channel,
             "type": self.message_type,
-            "payload": {
-                "text": self.text
-            }
+            "payload": self.text  # Payload is just the text string
         }
+        
+        # Only include "to" field if not broadcasting to all
+        # Broadcast address is 0xFFFFFFFF (4294967295)
+        if self.to_node != 4294967295:
+            payload["to"] = self.to_node
+        
         return json.dumps(payload)
 
 
