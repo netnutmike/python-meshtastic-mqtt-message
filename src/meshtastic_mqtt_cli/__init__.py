@@ -1,3 +1,5 @@
 """Meshtastic MQTT CLI - A command-line tool for sending messages to Meshtastic devices via MQTT."""
 
-__version__ = "0.1.0"
+from .__version__ import __version__, __version_info__
+
+__all__ = ["__version__", "__version_info__"]

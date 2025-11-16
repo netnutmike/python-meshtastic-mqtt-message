@@ -1,5 +1,9 @@
 # Meshtastic MQTT CLI
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/yourusername/meshtastic-mqtt-cli/releases)
+
 A Python command-line tool for sending messages to Meshtastic devices via MQTT. This tool simplifies the process of sending messages through the Meshtastic MQTT network by handling JSON message construction and protocol compliance automatically.
 
 ## Features
@@ -66,6 +70,7 @@ meshtastic:
   from_id: "!12345678"
   to_id: "^all"
   channel: "LongFast"
+  channel_number: 0
   region: "US"
 ```
 
@@ -77,7 +82,8 @@ meshtastic:
 - `mqtt.password`: MQTT password for authentication (required)
 - `meshtastic.from_id`: Your Meshtastic node ID, e.g., `!12345678` (required)
 - `meshtastic.to_id`: Recipient node ID or `^all` for broadcast (default: `^all`)
-- `meshtastic.channel`: Meshtastic channel name (default: `LongFast`)
+- `meshtastic.channel`: Meshtastic channel name for MQTT topic (default: `LongFast`)
+- `meshtastic.channel_number`: Channel index in message payload, 0-7 (default: 0)
 - `meshtastic.region`: Meshtastic region code, e.g., `US`, `EU` (default: `US`)
 
 ## Usage
@@ -106,12 +112,14 @@ All command-line arguments override values from the configuration file.
 **Meshtastic Arguments:**
 - `--from-id`: Sender node ID (e.g., `!12345678`)
 - `--to-id`: Recipient node ID (e.g., `^all` for broadcast)
-- `--channel`: Meshtastic channel name
+- `--channel`: Meshtastic channel name for MQTT topic
+- `--channel-number`: Channel index in message payload (0-7)
 - `--region`: Meshtastic region code
 
 **Other Arguments:**
 - `--config`: Path to custom configuration file
 - `--verbose`, `-v`: Enable verbose (DEBUG level) logging
+- `--version`: Display version information
 - `--help`, `-h`: Display help information
 
 ### Usage Examples
@@ -242,13 +250,46 @@ The JSON payload structure follows the Meshtastic protocol specification.
 - Use the configuration file for storing credentials instead
 - The `.gitignore` file excludes configuration files to prevent accidental credential commits
 
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+python -m unittest discover tests -v
+
+# Run specific test file
+python -m unittest tests.test_integration -v
+
+# Run validation tests against actual Meshtastic broker
+python tests/manual_validation.py
+```
+
+### Dependency Management
+
+This project uses [Renovate](https://docs.renovatebot.com/) for automated dependency updates. Renovate will automatically create pull requests to update dependencies when new versions are available.
+
 ## License
 
-[Add your license information here]
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+### GPL v3 Summary
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 ## Contributing
 
-[Add contribution guidelines here]
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+Please make sure to update tests as appropriate and follow the existing code style.
 
 ## Support
 

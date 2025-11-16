@@ -142,7 +142,28 @@ Configuration file location: {}
         help='Enable verbose (DEBUG level) logging'
     )
     
+    # Version
+    parser.add_argument(
+        '--version',
+        action='version',
+        version=f'%(prog)s {get_version()}'
+    )
+    
     return parser.parse_args()
+
+
+def get_version() -> str:
+    """
+    Get the version of the application.
+    
+    Returns:
+        Version string
+    """
+    try:
+        from meshtastic_mqtt_cli import __version__
+        return __version__
+    except ImportError:
+        return "unknown"
 
 
 def validate_inputs(config: Config, message: str) -> tuple[bool, list[str]]:
